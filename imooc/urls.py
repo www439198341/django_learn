@@ -13,16 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf.urls import url
-from django.contrib import admin
-from django.urls import path, include
 import xadmin
+from django.conf.urls import url
+from django.urls import include
 from django.views.generic import TemplateView
 from django.views.static import serve
 
-from courses.views import CourseView
 from imooc.settings import MEDIA_ROOT
-from organization.views import OrgView
 from users.views import LoginView, RegisterView, ActiveUserView, ForgetPwdView, ResetView, ModifyPwdView
 
 urlpatterns = [
@@ -41,5 +38,7 @@ urlpatterns = [
     url(r'^org/', include('organization.urls', namespace='org')),
     # 配置上传文件的访问处理函数
     url(r'^media/(?P<path>.*)', serve, {'document_root': MEDIA_ROOT}),
-    # 用户咨询课程提交表单
+
+    # 课程相关
+    url(r'^course/', include('courses.urls', namespace='course')),
 ]
