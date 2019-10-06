@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import PageNotAnInteger
 from django.db.models import Q
 from django.http import JsonResponse
@@ -62,7 +63,9 @@ class CourseDetailView(View):
         })
 
 
-class CourseVideoView(View):
+class CourseVideoView(LoginRequiredMixin, View):
+    login_url = '/login/'
+
     def get(self, request, course_id):
         course = Course.objects.get(id=course_id)
         if not UserCourse(user=request.user, course_id=course_id):
