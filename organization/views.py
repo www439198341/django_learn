@@ -1,4 +1,5 @@
 from django.core.paginator import PageNotAnInteger
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic.base import View
@@ -17,6 +18,14 @@ class OrgView(View):
         hot_orgs = all_orgs.order_by('-click_nums')[:3]
         # 从请求中获取到city，用来筛选
         city_id = request.GET.get('city', '')
+
+        # 处理搜索关键字
+        key_words = request.GET.get('keywords', '')
+        if key_words:
+            all_orgs = all_orgs.filter(
+                Q(name__icontains=key_words) | Q(desc__icontains=key_words)
+            )
+
         if city_id:
             all_orgs = all_orgs.filter(city_id=int(city_id))
         # 从请求中获取到分类，用来筛选
@@ -158,6 +167,15 @@ class AddFavView(View):
 class TeacherListView(View):
     def get(self, request):
         all_teachers = Teacher.objects.all()
+
+        # 处理搜索关键字
+        key_words = request.GET.get('keywords', '')
+        if key_words:
+            all_teachers = all_teachers.filter(
+                Q(name__icontains=key_words) | Q(work_company__icontains=key_words) | Q(
+                    work_position__icontains=key_words)
+            )
+
         sort = request.GET.get('sort', '')
         if sort == 'hot':  # 按人气排序
             all_teachers = all_teachers.order_by('-click_nums')

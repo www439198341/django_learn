@@ -14,6 +14,13 @@ class CourseListView(View):
     def get(self, request):
         all_courses = Course.objects.all().order_by('-add_time')
         hot_courses = all_courses.order_by('-click_nums')[:3]
+
+        key_words = request.GET.get('keywords', '')
+        if key_words:
+            all_courses = all_courses.filter(
+                Q(name__icontains=key_words)|Q(desc__icontains=key_words)|Q(detail__icontains=key_words)
+            )
+
         sort = request.GET.get('sort', '')
         if sort:
             if sort == 'students':
