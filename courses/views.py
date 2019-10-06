@@ -34,6 +34,7 @@ class CourseListView(View):
             'all_courses': courses,
             'hot_courses': hot_courses,
             'sort': sort,
+            'page_type': 'courses',
         })
 
 
