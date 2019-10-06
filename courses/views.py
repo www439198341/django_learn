@@ -1,10 +1,10 @@
 from django.core.paginator import PageNotAnInteger
 from django.shortcuts import render
-
 from django.views.generic.base import View
 from pure_pagination import Paginator
 
 from courses.models import Course
+from operation.models import UserFavourite
 
 
 class CourseListView(View):
@@ -31,4 +31,30 @@ class CourseListView(View):
             'all_courses': courses,
             'hot_courses': hot_courses,
             'sort': sort,
+        })
+
+
+class CourseDetailView(View):
+    def get(self, request, course_id):
+        # 课程详情页面
+        course = Course.objects.get(id=course_id)
+        # 课程点击数增加1
+        course.click_nums += 1
+        course.save()
+        # 相关课程推荐
+        rel = Course.objects.filter(tag=course.tag)[:1]
+        # 判断课程/机构是否已经收藏
+        has_course_fav = False
+        has_org_fav = False
+        if request.user.is_authenticated:
+            if UserFavourite.objects.filter(user=request.user, fav_id=course_id, fav_type=1):
+                has_course_fav = True
+            if UserFavourite.objects.filter(user=request.user, fav_id=course.course_org.id, fav_type=2):
+                has_org_fav = True
+
+        return render(request, 'course-detail.html', {
+            'course': course,
+            'rel': rel,
+            'has_course_fav': has_course_fav,
+            'has_org_fav': has_org_fav,
         })

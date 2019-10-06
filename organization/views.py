@@ -145,7 +145,7 @@ class AddFavView(View):
         else:
             user_fav = UserFavourite()
             if fav_id > 0 and fav_type > 0:
-                user_fav.user = request.user.id
+                user_fav.user_id = request.user.id
                 user_fav.fav_id = fav_id
                 user_fav.fav_type = fav_type
                 user_fav.save()
