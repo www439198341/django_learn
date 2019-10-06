@@ -4,7 +4,7 @@ __date__ = '2019/10/3 18:50'
 from django.conf.urls import url
 
 from organization.views import OrgView, AddUserAskView, OrgHomeView, OrgCourseView, OrgDescView, OrgTeacherView, \
-    AddFavView, TeacherListView
+    AddFavView, TeacherListView, TeacherDetailView
 
 app_name = 'organization'
 
@@ -21,4 +21,6 @@ urlpatterns = [
 
     # 讲师列表页
     url(r'^teacher/list/$', TeacherListView.as_view(), name='teacher_list'),
+    # 讲师详情
+    url(r'^teacher/detail/(?P<teacher_id>\d+)/$', TeacherDetailView.as_view(), name='teacher_detail'),
 ]
