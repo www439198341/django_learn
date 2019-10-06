@@ -6,7 +6,7 @@ from pure_pagination import Paginator
 
 from operation.models import UserFavourite
 from organization.forms import UserAskForm
-from organization.models import CourseOrg, CityDict
+from organization.models import CourseOrg, CityDict, Teacher
 
 
 class OrgView(View):
@@ -129,6 +129,7 @@ class OrgTeacherView(View):
 
 class AddFavView(View):
     """用户收藏及取消收藏"""
+
     def post(self, request):
         # 如果未登录，则返回错误
         if not request.user.is_authenticated:
@@ -154,3 +155,26 @@ class AddFavView(View):
                 return JsonResponse({'status': 'fail', 'msg': '收藏出错'})
 
 
+class TeacherListView(View):
+    def get(self, request):
+        all_teachers = Teacher.objects.all()
+        sort = request.GET.get('sort', '')
+        if sort == 'hot':  # 按人气排序
+            all_teachers = all_teachers.order_by('-click_nums')
+
+        sorted_teacher = all_teachers.order_by('-click_nums')[:3]
+
+        # 分页处理
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+
+        p = Paginator(all_teachers, 5, request=request)
+        teachers = p.page(page)
+
+        return render(request, 'teachers-list.html', {
+            'all_teachers': teachers,
+            'sort': sort,
+            'sorted_teacher': sorted_teacher,
+        })
