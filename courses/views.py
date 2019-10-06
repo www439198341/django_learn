@@ -1,11 +1,12 @@
 from django.core.paginator import PageNotAnInteger
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic.base import View
 from pure_pagination import Paginator
 
 from courses.models import Course, Lesson
-from operation.models import UserFavourite, UserCourse
+from operation.models import UserFavourite, UserCourse, CourseComment
 
 
 class CourseListView(View):
@@ -71,3 +72,24 @@ class CourseVideoView(View):
             'course': course,
             'similar': similar,
         })
+
+
+class CourseCommentView(View):
+    def get(self, request, course_id):
+        course = Course.objects.get(id=course_id)
+        comments = CourseComment.objects.order_by('-add_time').filter(user=request.user)
+        return render(request, 'course-comment.html', {
+            'course': course,
+            'comments': comments,
+        })
+
+
+class AddCommentView(View):
+    def post(self, request):
+        if request.user.is_authenticated:
+            course_id = request.POST.get('course_id', '')
+            comments = request.POST.get('comments', '')
+            CourseComment(user=request.user, course_id=course_id, comments=comments).save()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'fail'})

@@ -30,10 +30,6 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/muke/course/common-less.css' %}">
 {% endblock %}
 
-
-
-
-
 {% block content %}
     <div id="main">
         <div class="course-infos">
@@ -71,7 +67,8 @@
                             <ul class="course-menu clearfix">
                                 <li><a class="ui-tabs-active active" id="learnOn"
                                        href="{% url 'course:course_video' course.id %}"><span>章节</span></a></li>
-                                <li><a id="commentOn" class="" href="course-comment.html"><span>评论</span></a></li>
+                                <li><a id="commentOn" class="" href="{% url 'course:course_comment' course.id %}"><span>评论</span></a>
+                                </li>
                             </ul>
                         </div>
                         <div id="notice" class="clearfix">
@@ -151,14 +148,14 @@
                                         <!-- img 200 x 112 -->
                                         <ul class="other-list">
                                             {% for s in similar %}
-                                            <li class="curr">
-                                                <a href="course-detail.html" target="_blank">
-                                                    <img src="{{ MEDIA_URL }}{{ s.course.image }}"
-                                                         alt="django与vuejs实战项目2">
-                                                    <span class="name autowrap">{{ s.course.name }}</span>
-                                                </a>
-                                            </li>
-{% endfor %}
+                                                <li class="curr">
+                                                    <a href="course-detail.html" target="_blank">
+                                                        <img src="{{ MEDIA_URL }}{{ s.course.image }}"
+                                                             alt="django与vuejs实战项目2">
+                                                        <span class="name autowrap">{{ s.course.name }}</span>
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
                                         </ul>
                                     </div>
                                     <div class="cp-tab-pannel js-comp-tab-pannel" data-pannel="plan">
@@ -179,9 +176,7 @@
                     </div>
                 </div>
                 <div class="clear"></div>
-
             </div>
-
         </div>
     </div>
 {% endblock %}
