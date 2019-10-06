@@ -1,10 +1,11 @@
 from django.core.paginator import PageNotAnInteger
+from django.db.models import Q
 from django.shortcuts import render
 from django.views.generic.base import View
 from pure_pagination import Paginator
 
-from courses.models import Course
-from operation.models import UserFavourite
+from courses.models import Course, Lesson
+from operation.models import UserFavourite, UserCourse
 
 
 class CourseListView(View):
@@ -57,4 +58,16 @@ class CourseDetailView(View):
             'rel': rel,
             'has_course_fav': has_course_fav,
             'has_org_fav': has_org_fav,
+        })
+
+
+class CourseVideoView(View):
+    def get(self, request, course_id):
+        course = Course.objects.get(id=course_id)
+        if not UserCourse(user=request.user, course_id=course_id):
+            UserCourse(user=request.user, course_id=course_id).save()
+        similar = UserCourse.objects.filter(course_id=course_id).filter(~Q(user=request.user))[:5]
+        return render(request, 'course-video.html', {
+            'course': course,
+            'similar': similar,
         })
