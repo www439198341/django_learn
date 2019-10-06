@@ -26,7 +26,7 @@ urlpatterns = [
     # path('admin/', admin.site.urls),
     url('admin/', xadmin.site.urls),
     url(r'^captcha/', include('captcha.urls')),
-    url('^$', TemplateView.as_view(template_name='index.html', extra_context={'page_type': 'index'}), name='index'),
+    url('^$', TemplateView.as_view(template_name='index.html'), name='index'),
     url('^login/$', LoginView.as_view(), name='login'),
     url('^register/$', RegisterView.as_view(), name='register'),
     url(r'^active/(?P<active_code>.*)/$', ActiveUserView.as_view(), name='user_active'),

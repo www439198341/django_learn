@@ -49,7 +49,6 @@ class OrgView(View):
             'category': category,
             'hot_orgs': hot_orgs,
             'sort': sort,
-            'page_type': 'orgs',
         }
         return render(request, 'org-list.html', context=context)
 
@@ -178,7 +177,6 @@ class TeacherListView(View):
             'all_teachers': teachers,
             'sort': sort,
             'sorted_teacher': sorted_teacher,
-            'page_type': 'teachers',
         })
 
 
