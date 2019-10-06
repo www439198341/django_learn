@@ -176,10 +176,7 @@
 {% block custom_js %}
 <script>
 $(function () {
-    var count = 0;
     $('#jsStayBtn').on('click', function () {
-        count = count + 1;
-        console.log(count);
         $.ajax({
             cache: false,
             type: "POST",

@@ -1,12 +1,16 @@
+import json
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.db.models import Q
 
 from django.views.generic.base import View
 
-from users.forms import LoginForm, RegisterForm, ForgetForm, ModifyPwdForm
+from users.forms import LoginForm, RegisterForm, ForgetForm, ModifyPwdForm, UploadImageForm, UpdateUserInfoForm
 from users.models import UserProfile, EmailVerifyRecord
 from utils.email_send import send_register_email
 
@@ -126,4 +130,74 @@ class ModifyPwdView(View):
             return render(request, 'password_reset.html', {'modify_form': modify_form})
 
 
+class UserCenterView(LoginRequiredMixin, View):
+    login_url = '/login/'
+
+    def get(self, request, user_id):
+        user = UserProfile.objects.get(id=user_id)
+        return render(request, 'usercenter-info.html', {
+            'user': user,
+        })
+
+
+class UploadImageView(LoginRequiredMixin, View):
+    login_url = '/login/'
+
+    def post(self, request):
+        image_form = UploadImageForm(request.POST, request.FILES, instance=request.user)
+        if image_form.is_valid():
+            image_form.save()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'fail'})
+
+
+class UpdatePwdView(LoginRequiredMixin, View):
+    def post(self, request):
+        modify_form = ModifyPwdForm(request.POST)
+        if modify_form.is_valid():
+            pwd1 = request.POST.get('password1', '')
+            pwd2 = request.POST.get('password2', '')
+            if pwd1 != pwd2:
+                return JsonResponse({'status': 'fail', 'msg': '两次密码不一致'})
+            user = request.user
+            user.password = make_password(pwd1)
+            user.save()
+            return JsonResponse({'status': 'success', 'msg': '密码修改成功'})
+        else:
+            return JsonResponse(dict(modify_form.errors.items()), safe=False)
+
+
+class SendEmailCodeView(LoginRequiredMixin, View):
+    def get(self, request):
+        email = request.GET.get('email', '')
+        if UserProfile.objects.filter(email=email):
+            return JsonResponse({'email': '邮箱已经存在'})
+        else:
+            send_register_email(email, send_type='update_email')
+            return JsonResponse({'status': 'success'})
+
+
+class UpdateEmailView(View):
+    def post(self, request):
+        email = request.POST.get('email', '')
+        code = request.POST.get('code', '')
+
+        if EmailVerifyRecord.objects.filter(email=email, code=code, send_type='update_email'):
+            user = request.user
+            user.email = email
+            user.save()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'email': '验证码错误'})
+
+
+class UpdateUserInfoView(View):
+    def post(self, request):
+        update_form = UpdateUserInfoForm(request.POST, instance=request.user)
+        if update_form.is_valid():
+            update_form.save()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse(dict(update_form.errors.items()))
 
