@@ -1,15 +1,13 @@
-import json
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.db.models import Q
-
 from django.views.generic.base import View
 
+from courses.models import Course
 from users.forms import LoginForm, RegisterForm, ForgetForm, ModifyPwdForm, UploadImageForm, UpdateUserInfoForm
 from users.models import UserProfile, EmailVerifyRecord
 from utils.email_send import send_register_email
@@ -133,10 +131,8 @@ class ModifyPwdView(View):
 class UserCenterView(LoginRequiredMixin, View):
     login_url = '/login/'
 
-    def get(self, request, user_id):
-        user = UserProfile.objects.get(id=user_id)
+    def get(self, request):
         return render(request, 'usercenter-info.html', {
-            'user': user,
         })
 
 
@@ -201,3 +197,11 @@ class UpdateUserInfoView(View):
         else:
             return JsonResponse(dict(update_form.errors.items()))
 
+
+class MyCourseView(View):
+    def get(self, request):
+        all_courses = Course.objects.filter(usercourse__user_id=request.user)
+
+        return render(request, 'usercenter-mycourse.html', {
+            'all_courses': all_courses,
+        })
