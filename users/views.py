@@ -8,6 +8,8 @@ from django.shortcuts import render
 from django.views.generic.base import View
 
 from courses.models import Course
+from operation.models import UserFavourite
+from organization.models import CourseOrg, Teacher
 from users.forms import LoginForm, RegisterForm, ForgetForm, ModifyPwdForm, UploadImageForm, UpdateUserInfoForm
 from users.models import UserProfile, EmailVerifyRecord
 from utils.email_send import send_register_email
@@ -204,4 +206,46 @@ class MyCourseView(View):
 
         return render(request, 'usercenter-mycourse.html', {
             'all_courses': all_courses,
+        })
+
+
+class UserFavOrgView(View):
+    def get(self, request):
+        fav_ids = UserFavourite.objects.filter(user=request.user, fav_type=2)
+        orgs = []
+        for fav_id in fav_ids:
+            org_id = fav_id.fav_id
+            org = CourseOrg.objects.get(id=org_id)
+            orgs.append(org)
+        return render(request, 'usercenter-fav-org.html', {
+            'orgs': orgs,
+            'fav_type': request.GET.get('fav_type'),
+        })
+
+
+class UserFavTeacherView(View):
+    def get(self, request):
+        fav_ids = UserFavourite.objects.filter(user=request.user, fav_type=3)
+        teachers = []
+        for fav_id in fav_ids:
+            teacher_id = fav_id.fav_id
+            teacher = Teacher.objects.get(id=teacher_id)
+            teachers.append(teacher)
+        return render(request, 'usercenter-fav-teacher.html', {
+            'teachers': teachers,
+            'fav_type': request.GET.get('fav_type'),
+        })
+
+
+class UserFavCourseView(View):
+    def get(self, request):
+        fav_ids = UserFavourite.objects.filter(user=request.user, fav_type=1)
+        courses = []
+        for fav_id in fav_ids:
+            course_id = fav_id.fav_id
+            course = Course.objects.get(id=course_id)
+            courses.append(course)
+        return render(request, 'usercenter-fav-course.html', {
+            'courses': courses,
+            'fav_type': request.GET.get('fav_type'),
         })

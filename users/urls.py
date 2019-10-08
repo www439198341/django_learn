@@ -1,5 +1,5 @@
 from users.views import UserCenterView, UploadImageView, UpdatePwdView, SendEmailCodeView, UpdateEmailView, \
-    UpdateUserInfoView, MyCourseView
+    UpdateUserInfoView, MyCourseView, UserFavOrgView, UserFavTeacherView, UserFavCourseView
 
 __author__ = 'Flynn'
 __date__ = '2019/10/6 22:45'
@@ -23,5 +23,11 @@ urlpatterns = [
 
     # 我的课程
     url(r'^mycourse/$', MyCourseView.as_view(), name='mycourse'),
+    # 我的收藏-机构
+    url(r'^fav_org/$', UserFavOrgView.as_view(), name='fav_org'),
+    # 我的收藏-讲师
+    url(r'^fav_teacher/$', UserFavTeacherView.as_view(), name='fav_teacher'),
+    # 我的收藏-课程
+    url(r'^fav_course/$', UserFavCourseView.as_view(), name='fav_course'),
 
 ]
