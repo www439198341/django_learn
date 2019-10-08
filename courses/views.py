@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.views.generic.base import View
 from pure_pagination import Paginator
 
-from courses.models import Course, Lesson
+from courses.models import Course
 from operation.models import UserFavourite, UserCourse, CourseComment
 
 
@@ -18,7 +18,7 @@ class CourseListView(View):
         key_words = request.GET.get('keywords', '')
         if key_words:
             all_courses = all_courses.filter(
-                Q(name__icontains=key_words)|Q(desc__icontains=key_words)|Q(detail__icontains=key_words)
+                Q(name__icontains=key_words) | Q(desc__icontains=key_words) | Q(detail__icontains=key_words)
             )
 
         sort = request.GET.get('sort', '')
@@ -75,6 +75,8 @@ class CourseVideoView(LoginRequiredMixin, View):
 
     def get(self, request, course_id):
         course = Course.objects.get(id=course_id)
+        course.students += 1
+        course.save()
         if not UserCourse(user=request.user, course_id=course_id):
             UserCourse(user=request.user, course_id=course_id).save()
         similar = UserCourse.objects.filter(course_id=course_id).filter(~Q(user=request.user))[:5]

@@ -20,7 +20,7 @@ from django.views.generic import TemplateView
 from django.views.static import serve
 
 from imooc.settings import MEDIA_ROOT
-from users.views import LoginView, RegisterView, ActiveUserView, ForgetPwdView, ResetView, ModifyPwdView
+from users.views import LoginView, RegisterView, ActiveUserView, ForgetPwdView, ResetView, ModifyPwdView, LogoutView
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^captcha/', include('captcha.urls')),
     url('^$', TemplateView.as_view(template_name='index.html'), name='index'),
     url('^login/$', LoginView.as_view(), name='login'),
+    url('^logout/$', LogoutView.as_view(), name='logout'),
     url('^register/$', RegisterView.as_view(), name='register'),
     url(r'^active/(?P<active_code>.*)/$', ActiveUserView.as_view(), name='user_active'),
     url(r'^reset/(?P<active_code>.*)/$', ResetView.as_view(), name='user_active'),
