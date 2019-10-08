@@ -27,9 +27,9 @@
         <div class="personal_des permessage">
             <div class="head">
                 <ul class="tab_header messagehead">
-                    <li><a href="{% url 'users:fav_org' %}">课程机构</a></li>
-                    <li><a href="{% url 'users:fav_teacher' %}">授课教师 </a></li>
-                    <li class="active"><a href="{% url 'users:fav_course' %}">公开课程</a></li>
+                    <li><a href="{% url 'users:fav_org' %}?page_type=fav">课程机构</a></li>
+                    <li><a href="{% url 'users:fav_teacher' %}?page_type=fav">授课教师 </a></li>
+                    <li class="active"><a href="{% url 'users:fav_course' %}?page_type=fav">公开课程</a></li>
                 </ul>
 
             </div>

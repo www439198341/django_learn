@@ -2,13 +2,15 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import PageNotAnInteger
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic.base import View
+from pure_pagination import Paginator
 
 from courses.models import Course
-from operation.models import UserFavourite
+from operation.models import UserFavourite, UserMessage
 from organization.models import CourseOrg, Teacher
 from users.forms import LoginForm, RegisterForm, ForgetForm, ModifyPwdForm, UploadImageForm, UpdateUserInfoForm
 from users.models import UserProfile, EmailVerifyRecord
@@ -65,6 +67,9 @@ class RegisterView(View):
             user_profile.password = make_password(pass_word)
             user_profile.is_active = False
             user_profile.save()
+
+            # 想用户发送注册消息
+            UserMessage(user=user_profile, message='欢迎注册').save()
 
             send_register_email(user_name)
             return render(request, 'login.html')
@@ -135,6 +140,7 @@ class UserCenterView(LoginRequiredMixin, View):
 
     def get(self, request):
         return render(request, 'usercenter-info.html', {
+            'page_type': request.GET.get('page_type')
         })
 
 
@@ -206,6 +212,7 @@ class MyCourseView(View):
 
         return render(request, 'usercenter-mycourse.html', {
             'all_courses': all_courses,
+            'page_type': request.GET.get('page_type'),
         })
 
 
@@ -219,7 +226,7 @@ class UserFavOrgView(View):
             orgs.append(org)
         return render(request, 'usercenter-fav-org.html', {
             'orgs': orgs,
-            'fav_type': request.GET.get('fav_type'),
+            'page_type': request.GET.get('page_type'),
         })
 
 
@@ -233,7 +240,7 @@ class UserFavTeacherView(View):
             teachers.append(teacher)
         return render(request, 'usercenter-fav-teacher.html', {
             'teachers': teachers,
-            'fav_type': request.GET.get('fav_type'),
+            'page_type': request.GET.get('page_type'),
         })
 
 
@@ -247,5 +254,25 @@ class UserFavCourseView(View):
             courses.append(course)
         return render(request, 'usercenter-fav-course.html', {
             'courses': courses,
-            'fav_type': request.GET.get('fav_type'),
+            'page_type': request.GET.get('page_type'),
         })
+
+
+class UserMessageView(View):
+    def get(self, request):
+        all_messages = UserMessage.objects.filter(user=request.user)
+
+        # 分页处理
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+
+        p = Paginator(all_messages, 1, request=request)
+        messages = p.page(page)
+
+        return render(request, 'usercenter-message.html', {
+            'messages': messages,
+            'page_type': request.GET.get('page_type'),
+        })
+
